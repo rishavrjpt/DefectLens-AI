@@ -1,3 +1,13 @@
+---
+title: DefectLens AI
+emoji: 🔍
+colorFrom: blue
+colorTo: green
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # DefectLens AI: Industrial Surface Anomaly Detection & Visual Localization
 
 [![Python](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-blue.svg)](https://www.python.org/)

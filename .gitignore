@@ -41,6 +41,7 @@ ___testing_ml_model___/
 models/*.pt
 models/*.pth
 !models/.gitkeep
+!models/patchcore_bottle.pt
 
 # Results & Temp
 .pytest_cache/

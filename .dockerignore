@@ -1,0 +1,14 @@
+.git
+.gitignore
+.venv
+venv
+__pycache__
+*.py[cod]
+.pytest_cache
+data/mvtec
+data/*.tar*
+data/*.zip
+data/*.parquet
+tests
+*.log
+.DS_Store

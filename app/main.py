@@ -27,11 +27,14 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# Enable CORS for local development
+# CORS: the bundled UI is same-origin, so cross-origin access is opt-in via a
+# comma-separated ALLOWED_ORIGINS env var (e.g. "https://example.com,http://localhost:3000").
+ALLOWED_ORIGINS = [o.strip() for o in os.environ.get("ALLOWED_ORIGINS", "").split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
