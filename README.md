@@ -14,6 +14,9 @@ pinned: false
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.14%2B-ee4c2c.svg)](https://pytorch.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100%2B-009688.svg)](https://fastapi.tiangolo.com/)
 [![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![Documentation: PDF Guide](https://img.shields.io/badge/Documentation-PDF%20Guide-red.svg)](DefectLens_AI_Project_Guide.pdf)
+
+> 📄 **Complete Project Guide Available:** Download the official [**DefectLens AI Project Guide (PDF)**](DefectLens_AI_Project_Guide.pdf) for a plain-English walkthrough with full diagrams, math explanations, and benchmark plots.
 
 **DefectLens AI** is an end-to-end industrial anomaly-detection and visual localization system designed for automated optical quality control. Trained exclusively on nominal (defect-free) surface imagery, DefectLens AI builds a representative patch feature coreset memory bank using deep representation embeddings from a CNN backbone (ResNet-18). When presented with new surface photographs, it flags structural defects without requiring prior examples of specific defect classes, while simultaneously generating 2D spatial heatmaps to pinpoint anomaly locations.
 
