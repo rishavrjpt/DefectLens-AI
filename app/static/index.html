@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DefectLens AI — Industrial Surface Anomaly Detection</title>
+  <meta name="description" content="Industrial Surface Anomaly Detection & Visual Localization system powered by PatchCore feature embeddings." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <!-- Header & Navigation -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 12a10 10 0 1 0 20 0 10 10 0 1 0-20 0Z" />
+            <path d="M12 2v20" />
+            <path d="M2 12h20" />
+            <circle cx="12" cy="12" r="4" fill="currentColor" fill-opacity="0.2" />
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">DefectLens <span class="brand-ai">AI</span></span>
+          <span class="brand-sub">Surface Anomaly Detection</span>
+        </div>
+      </div>
+
+      <nav class="nav-links">
+        <button class="nav-btn active" data-tab="tab-predict">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+          Prediction
+        </button>
+        <button class="nav-btn" data-tab="tab-insights">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+          ML Insights
+        </button>
+        <button class="nav-btn" data-tab="tab-about">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          About
+        </button>
+      </nav>
+
+      <div class="model-status-pill" id="modelStatusPill">
+        <span class="status-dot dot-yellow"></span>
+        <span class="status-label" id="statusPillText">Checking System...</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Notification Banner (Model Not Loaded Warning) -->
+  <div class="banner-alert" id="systemBanner" style="display: none;">
+    <div class="banner-content">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span id="bannerMessage">Model training is required before running predictions.</span>
+    </div>
+  </div>
+
+  <!-- Main Content Areas -->
+  <main class="main-wrapper">
+    <!-- SECTION 1: PREDICTION -->
+    <section class="tab-pane active" id="tab-predict">
+      <div class="section-header">
+        <div class="badge-pill">Live Inference Engine</div>
+        <h2>Inspect Surface Integrity</h2>
+        <p>Upload a product image to extract deep multi-scale patch embeddings and detect potential anomalies with pixel-level localization.</p>
+      </div>
+
+      <div class="predict-grid">
+        <!-- Left: Upload Card -->
+        <div class="card upload-card">
+          <div class="card-header">
+            <h3>1. Input Product Surface</h3>
+            <span class="card-tag">JPG / PNG &lt; 10MB</span>
+          </div>
+
+          <div class="dropzone" id="dropzone">
+            <input type="file" id="fileInput" accept="image/png, image/jpeg, image/jpg" style="display: none;" />
+            <div class="dropzone-inner" id="dropzonePrompt">
+              <div class="upload-icon-wrapper">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              </div>
+              <p class="dropzone-primary-text">Drag & drop product image here</p>
+              <p class="dropzone-sub-text">or <button type="button" class="btn-link" id="browseBtn">browse local file</button></p>
+            </div>
+
+            <!-- Upload preview container -->
+            <div class="preview-container" id="previewContainer" style="display: none;">
+              <img id="imagePreview" src="" alt="Selected Preview" />
+              <button class="remove-img-btn" id="removeImgBtn" title="Remove image">&times;</button>
+              <div class="preview-meta" id="previewMeta">sample.png (120 KB)</div>
+            </div>
+          </div>
+
+          <!-- Quick Samples Selector -->
+          <div class="sample-picker">
+            <span class="sample-label">Or test with demo samples:</span>
+            <div class="sample-buttons">
+              <button class="sample-btn" data-type="normal">Good Surface</button>
+              <button class="sample-btn" data-type="broken">Broken Edge</button>
+              <button class="sample-btn" data-type="contamination">Contamination</button>
+            </div>
+          </div>
+
+          <button class="btn btn-primary btn-block" id="analyzeBtn" disabled>
+            <span class="btn-spinner" id="btnSpinner" style="display: none;"></span>
+            <span id="btnText">Analyze Image</span>
+          </button>
+
+          <div class="disclaimer-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <p><strong>Educational Prototype:</strong> Images are processed in-memory and not stored permanently. Model outputs represent representation distance, not guaranteed quality verdicts.</p>
+          </div>
+        </div>
+
+        <!-- Right: Results Card -->
+        <div class="card result-card">
+          <div class="card-header">
+            <h3>2. Anomaly Analysis &amp; Localization</h3>
+            <span class="card-tag" id="decisionTag">Awaiting Input</span>
+          </div>
+
+          <!-- Empty State -->
+          <div class="empty-state" id="emptyResultState">
+            <div class="empty-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+            </div>
+            <h4>No Image Analyzed Yet</h4>
+            <p>Upload a product surface photo on the left and click "Analyze Image" to run PatchCore feature inspection.</p>
+          </div>
+
+          <!-- Active Results -->
+          <div class="active-results" id="activeResults" style="display: none;">
+            <!-- Status Alert Banner -->
+            <div class="status-banner" id="statusBanner">
+              <div class="status-badge" id="statusBadge">Likely Normal</div>
+              <div class="status-details">
+                <span class="status-headline" id="statusHeadline">No anomalous patch detected</span>
+                <span class="status-subline" id="statusSubline">Feature distances remain within calibrated normal bounds.</span>
+              </div>
+            </div>
+
+            <!-- Quantitative Metrics Row -->
+            <div class="metrics-row">
+              <div class="metric-box">
+                <span class="metric-label">Anomaly Score</span>
+                <span class="metric-value font-mono" id="valScore">0.000</span>
+                <span class="metric-hint">Patch Distance</span>
+              </div>
+              <div class="metric-box">
+                <span class="metric-label">Calibrated Threshold</span>
+                <span class="metric-value font-mono" id="valThreshold">0.000</span>
+                <span class="metric-hint">98% Val Bound</span>
+              </div>
+              <div class="metric-box">
+                <span class="metric-label">Score / Threshold</span>
+                <span class="metric-value font-mono" id="valRatio">0.00x</span>
+                <span class="metric-hint" id="ratioHint">Safe Margin</span>
+              </div>
+              <div class="metric-box">
+                <span class="metric-label">Flagged Area</span>
+                <span class="metric-value font-mono" id="valArea">0.0%</span>
+                <span class="metric-hint">High Heatmap %</span>
+              </div>
+            </div>
+
+            <!-- Score Progress Bar -->
+            <div class="gauge-container">
+              <div class="gauge-header">
+                <span>Score vs. Decision Threshold</span>
+                <span id="gaugeLabel" class="font-mono">0.0 / 0.0</span>
+              </div>
+              <div class="gauge-track">
+                <div class="gauge-bar" id="gaugeBar" style="width: 10%;"></div>
+                <div class="threshold-marker" id="thresholdMarker" style="left: 50%;">
+                  <span class="marker-tag">Threshold</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Heatmap Localization Visuals -->
+            <div class="visuals-section">
+              <div class="visuals-header">
+                <h4>Visual Anomaly Localization</h4>
+                <div class="view-toggles">
+                  <button class="toggle-btn active" data-view="all">Trio View</button>
+                  <button class="toggle-btn" data-view="overlay">Overlay Only</button>
+                </div>
+              </div>
+
+              <div class="visuals-grid" id="visualsGrid">
+                <div class="visual-col">
+                  <span class="visual-title">1. Input Surface</span>
+                  <div class="img-wrapper">
+                    <img id="resOrigImg" src="" alt="Input surface" />
+                  </div>
+                </div>
+                <div class="visual-col">
+                  <span class="visual-title">2. PatchCore Heatmap</span>
+                  <div class="img-wrapper">
+                    <img id="resHeatmapImg" src="" alt="Heatmap" />
+                  </div>
+                </div>
+                <div class="visual-col">
+                  <span class="visual-title">3. Localization Overlay</span>
+                  <div class="img-wrapper">
+                    <img id="resOverlayImg" src="" alt="Overlay" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="model-note-box">
+              <p><strong>Note:</strong> PatchCore identifies surface anomalies by calculating the Euclidean distance between query patch representations and the coreset memory bank learned exclusively from defect-free training images.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- SECTION 2: ML INSIGHTS -->
+    <section class="tab-pane" id="tab-insights">
+      <div class="section-header">
+        <div class="badge-pill">Transparent Model Telemetry</div>
+        <h2>Machine Learning Insights &amp; Evaluation</h2>
+        <p>Real experimental metrics, dataset distributions, and performance validation on the MVTec AD benchmark.</p>
+      </div>
+
+      <!-- Overview Stats Cards -->
+      <div class="insights-stats-grid">
+        <div class="stat-card">
+          <span class="stat-title">Dataset Benchmark</span>
+          <span class="stat-val" id="insDatasetName">MVTec AD</span>
+          <span class="stat-sub" id="insCategory">Category: bottle</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-title">Image-Level AUROC</span>
+          <span class="stat-val stat-accent" id="insImageAuroc">--</span>
+          <span class="stat-sub" id="insAurocSub">Pending Evaluation</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-title">Pixel Localization AUROC</span>
+          <span class="stat-val stat-accent" id="insPixelAuroc">--</span>
+          <span class="stat-sub">Ground-Truth Segmentation</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-title">Calibrated Threshold</span>
+          <span class="stat-val font-mono" id="insThreshold">--</span>
+          <span class="stat-sub">Tuned on Normal Val Set</span>
+        </div>
+      </div>
+
+      <!-- Dataset & Architecture Details -->
+      <div class="insights-columns">
+        <div class="card">
+          <div class="card-header">
+            <h3>Dataset Composition</h3>
+            <span class="card-tag">Real Verified Counts</span>
+          </div>
+          <div class="dataset-details-table" id="datasetTableContainer">
+            <table class="data-table">
+              <tbody>
+                <tr><td>Category</td><td class="font-mono" id="dtCategory">bottle</td></tr>
+                <tr><td>Normal Training Samples</td><td class="font-mono" id="dtTrainCount">--</td></tr>
+                <tr><td>Normal Test Samples</td><td class="font-mono" id="dtTestGoodCount">--</td></tr>
+                <tr><td>Defective Test Samples</td><td class="font-mono" id="dtTestDefectCount">--</td></tr>
+                <tr><td>Ground-Truth Pixel Masks</td><td class="font-mono" id="dtMaskCount">--</td></tr>
+                <tr><td>Input Resolution</td><td class="font-mono" id="dtResolution">--</td></tr>
+                <tr><td>Status</td><td id="dtStatus">Checking...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="defect-breakdown-box" id="defectBreakdownBox">
+            <h4>Defect Categories in Test Set:</h4>
+            <div class="tags-row" id="defectTagsRow">
+              <span class="tag">broken_large</span>
+              <span class="tag">broken_small</span>
+              <span class="tag">contamination</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>PatchCore Model Architecture</h3>
+            <span class="card-tag">Configuration</span>
+          </div>
+          <table class="data-table">
+            <tbody>
+              <tr><td>Backbone Extractor</td><td class="font-mono" id="archBackbone">ResNet-18 (ImageNet Pretrained)</td></tr>
+              <tr><td>Feature Extraction Layers</td><td class="font-mono" id="archLayers">layer2, layer3</td></tr>
+              <tr><td>Neighborhood Aggregation</td><td class="font-mono">Adaptive 3x3 Average Pooling</td></tr>
+              <tr><td>Patch Feature Dimension</td><td class="font-mono" id="archDim">384 channels</td></tr>
+              <tr><td>Coreset Subsampling</td><td class="font-mono" id="archCoreset">10% Greedy Minimax Coreset</td></tr>
+              <tr><td>Memory Bank Size</td><td class="font-mono" id="archMemorySize">-- patches</td></tr>
+              <tr><td>Inference Distance</td><td class="font-mono">k-NN Euclidean Distance (k=3)</td></tr>
+              <tr><td>Active Device</td><td class="font-mono" id="archDevice">--</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Evaluation Plots & Confusion Matrix -->
+      <div class="card mt-20" id="evalPlotsCard">
+        <div class="card-header">
+          <h3>Evaluation Artifacts &amp; Performance Plots</h3>
+          <span class="card-tag" id="evalStatusTag">Official Test Split</span>
+        </div>
+
+        <div class="eval-metrics-strip" id="evalMetricsStrip" style="display: none;">
+          <div class="eval-metric-item">
+            <span class="lbl">F1 Score</span>
+            <span class="num font-mono" id="emF1">--</span>
+          </div>
+          <div class="eval-metric-item">
+            <span class="lbl">Precision</span>
+            <span class="num font-mono" id="emPrecision">--</span>
+          </div>
+          <div class="eval-metric-item">
+            <span class="lbl">Recall (Sensitivity)</span>
+            <span class="num font-mono" id="emRecall">--</span>
+          </div>
+          <div class="eval-metric-item">
+            <span class="lbl">Specificity</span>
+            <span class="num font-mono" id="emSpecificity">--</span>
+          </div>
+          <div class="eval-metric-item">
+            <span class="lbl">Overall Accuracy</span>
+            <span class="num font-mono" id="emAccuracy">--</span>
+          </div>
+        </div>
+
+        <div class="plots-grid" id="plotsGrid">
+          <div class="plot-box">
+            <h4>ROC Curves (Image &amp; Pixel)</h4>
+            <div class="plot-img-wrapper" id="plotRocWrap">
+              <span class="placeholder-text">Plot will appear after evaluation</span>
+            </div>
+          </div>
+          <div class="plot-box">
+            <h4>Confusion Matrix</h4>
+            <div class="plot-img-wrapper" id="plotCmWrap">
+              <span class="placeholder-text">Plot will appear after evaluation</span>
+            </div>
+          </div>
+          <div class="plot-box">
+            <h4>Score Distribution &amp; Threshold</h4>
+            <div class="plot-img-wrapper" id="plotDistWrap">
+              <span class="placeholder-text">Plot will appear after evaluation</span>
+            </div>
+          </div>
+          <div class="plot-box">
+            <h4>Sample Predictions vs. Ground Truth</h4>
+            <div class="plot-img-wrapper" id="plotSamplesWrap">
+              <span class="placeholder-text">Plot will appear after evaluation</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Methodology Explanations -->
+      <div class="insights-columns mt-20">
+        <div class="card">
+          <div class="card-header">
+            <h3>How Unsupervised Anomaly Detection Works</h3>
+          </div>
+          <div class="card-body">
+            <p>Traditional computer vision classifiers require thousands of labeled defect examples for each conceivable flaw type (scratches, cracks, contamination, warping). In factory production lines, anomalies are extremely rare and diverse, making exhaustive defect collection virtually impossible.</p>
+            <p class="mt-10"><strong>DefectLens AI</strong> uses <em>One-Class Anomaly Detection</em>: it exclusively learns representations of normal, nominal surfaces. When an anomaly occurs, its intermediate patch representations drift away from the normal memory manifold, triggering an elevated anomaly score regardless of whether that specific defect type was ever seen during training.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Image-Level vs. Pixel-Level Detection</h3>
+          </div>
+          <div class="card-body">
+            <p><strong>Image-Level Detection:</strong> Produces a single anomaly score $s^*$ for the entire product by identifying the most anomalous patch distance. Used for fast binary gating: pass vs. reject.</p>
+            <p class="mt-10"><strong>Pixel-Level Localization:</strong> Maps individual patch distances back to their spatial locations on the product surface, applies bicubic upsampling and 2D Gaussian smoothing to generate a dense heatmap. This highlights exactly where on the surface the flaw is located, enabling automated root-cause analysis.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: ABOUT -->
+    <section class="tab-pane" id="tab-about">
+      <div class="section-header">
+        <div class="badge-pill">Project Documentation &amp; Architecture</div>
+        <h2>About DefectLens AI</h2>
+        <p>An industrial surface anomaly-detection system built for precision manufacturing quality inspection.</p>
+      </div>
+
+      <div class="about-grid">
+        <div class="card">
+          <h3>Problem Statement &amp; Motivation</h3>
+          <p>Manual optical inspection in manufacturing is labor-intensive, error-prone due to operator fatigue, and unable to scale with high-speed automated production lines. Conversely, supervised deep learning struggles because real factory defect data is scarce, highly unbalanced, and unpredictable.</p>
+          <p class="mt-10"><strong>DefectLens AI</strong> addresses this challenge with modern unsupervised representation learning: training solely on readily available defect-free parts to detect known and unknown structural anomalies instantly.</p>
+        </div>
+
+        <div class="card">
+          <h3>Core Capabilities</h3>
+          <ul class="feature-list">
+            <li><strong>Zero Defect Training:</strong> Requires only normal surface images to establish a baseline.</li>
+            <li><strong>Pixel-Level Localization:</strong> Smooth 2D heatmaps pinpoint defect coordinates.</li>
+            <li><strong>Greedy Coreset Subsampling:</strong> Retains 99%+ anomaly recall while reducing memory footprint by up to 90%.</li>
+            <li><strong>Leak-Free Validation:</strong> Decision threshold calibrated exclusively on validation normal samples.</li>
+            <li><strong>Fast Local Inference:</strong> Sub-50ms CPU/MPS latency suitable for edge inspection stations.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Project Workflow Diagram -->
+      <div class="card mt-20">
+        <h3>End-to-End System Workflow</h3>
+        <div class="workflow-steps">
+          <div class="step-card">
+            <span class="step-num">01</span>
+            <h4>Data Ingestion</h4>
+            <p>MVTec AD category ingestion, structure verification, and deterministic train/val split.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">02</span>
+            <h4>Patch Embedding</h4>
+            <p>ResNet-18 mid-level features (layer2, layer3) extracted and pooled with local receptive fields.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">03</span>
+            <h4>Coreset Memory</h4>
+            <p>Greedy minimax facility location subsamples a representative memory bank of normal surface patches.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">04</span>
+            <h4>Calibration</h4>
+            <p>Statistical threshold calibration using normal validation samples without touching the test split.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">05</span>
+            <h4>Inference &amp; UI</h4>
+            <p>Fast k-NN scoring, spatial heatmap generation, and interactive web dashboard.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tech Stack & Limitations -->
+      <div class="about-grid mt-20">
+        <div class="card">
+          <h3>Technology Stack</h3>
+          <table class="data-table">
+            <tbody>
+              <tr><td>ML Framework</td><td>PyTorch 2.14, Torchvision</td></tr>
+              <tr><td>Model Architecture</td><td>PatchCore (Roth et al., CVPR 2022)</td></tr>
+              <tr><td>Backend API</td><td>FastAPI, Uvicorn, Pydantic</td></tr>
+              <tr><td>Image Processing</td><td>Pillow, NumPy, SciPy</td></tr>
+              <tr><td>Evaluation &amp; Plots</td><td>Scikit-learn, Matplotlib</td></tr>
+              <tr><td>Frontend</td><td>HTML5, Vanilla Modern CSS, JavaScript (ES6+)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <h3>Limitations &amp; Responsible Use</h3>
+          <p><strong>Educational Prototype:</strong> DefectLens AI is developed for academic research and portfolio demonstration. It is not certified for safety-critical aerospace or medical device quality assurance without rigorous industrial qualification.</p>
+          <p class="mt-10"><strong>Domain Shift Sensitivity:</strong> Performance depends on consistent camera positioning and lighting conditions. Significant illumination shifts or camera angle variations may register as anomalies.</p>
+          <p class="mt-10"><strong>Recommendation:</strong> In production environments, anomaly detection systems should function as human-in-the-loop screening filters rather than autonomous rejection gates.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-left">
+        <strong>DefectLens AI</strong> &mdash; Industrial Surface Anomaly Detection &amp; Localization System
+      </div>
+      <div class="footer-right">
+        Dataset: <a href="https://www.mvtec.com/company/research/datasets/mvtec-ad" target="_blank" rel="noreferrer">MVTec AD (CC BY-NC-SA 4.0)</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

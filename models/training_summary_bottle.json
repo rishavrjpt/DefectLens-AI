@@ -1,0 +1,23 @@
+{
+  "model_name": "DefectLens AI PatchCore",
+  "category": "bottle",
+  "backbone": "resnet18",
+  "layers": [
+    "layer2",
+    "layer3"
+  ],
+  "coreset_sampling_ratio": 0.1,
+  "memory_bank_size": 2670,
+  "feature_dim": 384,
+  "train_samples": 178,
+  "val_samples": 31,
+  "calibrated_threshold": 1.6636,
+  "val_score_min": 1.1836614608764648,
+  "val_score_max": 1.7983593940734863,
+  "val_score_mean": 1.3189843585414271,
+  "device_used": "mps",
+  "training_time_seconds": 6.43,
+  "smoke_test": false,
+  "seed": 42,
+  "saved_at": "2026-09-28 10:42:32"
+}

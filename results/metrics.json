@@ -1,0 +1,54 @@
+{
+  "model_name": "DefectLens AI PatchCore",
+  "category": "bottle",
+  "backbone": "resnet18",
+  "calibrated_threshold": 1.6636,
+  "test_samples_total": 83,
+  "test_normal_count": 20,
+  "test_anomaly_count": 63,
+  "image_auroc": 1.0,
+  "pixel_auroc": 0.9222,
+  "accuracy": 1.0,
+  "precision": 1.0,
+  "recall": 1.0,
+  "f1_score": 1.0,
+  "specificity": 1.0,
+  "confusion_matrix": {
+    "true_negatives": 20,
+    "false_positives": 0,
+    "false_negatives": 0,
+    "true_positives": 63
+  },
+  "defect_breakdown": {
+    "broken_small": {
+      "total": 22,
+      "correct": 22,
+      "accuracy": 1.0,
+      "mean_anomaly_score": 3.2528675577857276
+    },
+    "contamination": {
+      "total": 21,
+      "correct": 21,
+      "accuracy": 1.0,
+      "mean_anomaly_score": 2.8941890625726607
+    },
+    "good": {
+      "total": 20,
+      "correct": 20,
+      "accuracy": 1.0,
+      "mean_anomaly_score": 1.354020071029663
+    },
+    "broken_large": {
+      "total": 20,
+      "correct": 20,
+      "accuracy": 1.0,
+      "mean_anomaly_score": 3.342733371257782
+    }
+  },
+  "plots": {
+    "roc_curves": "results/plots/roc_curves.png",
+    "confusion_matrix": "results/plots/confusion_matrix.png",
+    "score_distribution": "results/plots/score_distribution.png",
+    "sample_predictions": "results/plots/sample_predictions.png"
+  }
+}

@@ -1,0 +1,34 @@
+dataset:
+  name: "mvtec_ad"
+  category: "bottle"
+  root_dir: "data/mvtec"
+  image_size: 224
+  val_split: 0.15
+  seed: 42
+
+model:
+  name: "PatchCore"
+  backbone: "resnet18"
+  pretrained: true
+  layers:
+    - "layer2"
+    - "layer3"
+  coreset_sampling_ratio: 0.1
+  n_neighbors: 3
+  device: "auto"
+
+training:
+  batch_size: 16
+  num_workers: 0
+  seed: 42
+  save_dir: "models"
+
+evaluation:
+  output_dir: "results"
+  compute_pixel_metrics: true
+  metrics_file: "results/metrics.json"
+  plots_dir: "results/plots"
+
+server:
+  host: "127.0.0.1"
+  port: 8000

@@ -1,0 +1,23 @@
+{
+  "dataset_name": "MVTec Anomaly Detection (MVTec AD)",
+  "category": "bottle",
+  "category_path": "/Users/princechoudhary/Downloads/ml/data/mvtec/bottle",
+  "valid_structure": true,
+  "train_good_count": 209,
+  "test_good_count": 20,
+  "test_defect_counts": {
+    "broken_large": 20,
+    "broken_small": 22,
+    "contamination": 21
+  },
+  "ground_truth_mask_count": 63,
+  "total_images": 292,
+  "image_resolution": [
+    900,
+    900
+  ],
+  "color_channels": 3,
+  "corrupted_files": [],
+  "missing_masks": [],
+  "status": "verified"
+}

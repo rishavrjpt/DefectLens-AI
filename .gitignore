@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+.venv/
+env/
+venv/
+ENV/
+
+# Data and Models
+data/mvtec/
+data/*.tar.xz
+data/*.tar
+data/*.zip
+data/*.parquet
+___teesting ml mode____/
+___testing_ml_model___
+___testing_ml_model___/
+*.pth
+*.pt
+*.onnx
+models/*.pt
+models/*.pth
+!models/.gitkeep
+
+# Results & Temp
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+.matplotlib/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
